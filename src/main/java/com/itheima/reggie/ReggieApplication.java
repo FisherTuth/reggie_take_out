@@ -5,12 +5,23 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @SpringBootApplication
 @ServletComponentScan
 public class ReggieApplication {
     public static void main(String[] args) {
+        
+
+
+
         SpringApplication.run(ReggieApplication.class,args);
         log.info("项目启动成功...");
+
+        Map<Integer,Integer> map = new HashMap<>();
+
     }
 }
