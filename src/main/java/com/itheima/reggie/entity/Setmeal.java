@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 套餐
  */
 @Data
-public class SetMeal implements Serializable {
+public class Setmeal implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,8 +31,8 @@ public class SetMeal implements Serializable {
     //状态 0:停用 1:启用
     private Integer status;
 
-    //编码
-    private String code;
+//    //编码
+//    private String code;
 
     //描述信息
     private String description;
