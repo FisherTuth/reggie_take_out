@@ -2,6 +2,7 @@ package com.itheima.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itheima.reggie.common.CustomException;
 import com.itheima.reggie.dto.SetMealDto;
 import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.entity.SetmealDish;
@@ -63,5 +64,22 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
 
         setMealDishService.saveBatch(list);
 
+    }
+    @Override
+    @Transactional
+    public void removeWithDish(List<Long>ids){
+
+        LambdaQueryWrapper<Setmeal>queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId,ids);
+        queryWrapper.eq(Setmeal::getStatus,1);
+
+        int count = this.count(queryWrapper);
+        if(count>0)throw new CustomException("售卖中，不能删除。。");
+
+        this.removeByIds(ids);
+
+        LambdaQueryWrapper<SetmealDish>queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.in(SetmealDish::getSetmealId,ids);
+        setMealDishService.remove(queryWrapper1);
     }
 }

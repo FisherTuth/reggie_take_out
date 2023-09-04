@@ -26,3 +26,6 @@ reggie:
 cache:
   redis:
     time-to-live: 1800000 #设置缓存数据过期时间
+sendMsg:
+  signName: 我的kajisanr项目
+  templateCode: SMS_463160247

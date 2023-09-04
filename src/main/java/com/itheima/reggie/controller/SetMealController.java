@@ -3,14 +3,13 @@ package com.itheima.reggie.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
+import com.itheima.reggie.dto.DishDto;
 import com.itheima.reggie.dto.SetMealDto;
-import com.itheima.reggie.entity.Category;
-import com.itheima.reggie.entity.Dish;
-import com.itheima.reggie.entity.Setmeal;
+import com.itheima.reggie.entity.*;
 import com.itheima.reggie.service.CategoryService;
+import com.itheima.reggie.service.SetMealDishService;
 import com.itheima.reggie.service.SetMealService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -27,6 +26,9 @@ public class SetMealController {
     private SetMealService setMealService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private SetMealDishService setMealDishService;
+
     @GetMapping("/{id}")
     public R<SetMealDto> find(@PathVariable Long id){
 
@@ -68,5 +70,40 @@ public class SetMealController {
 
         pageDto.setRecords(list);
         return R.success(pageDto);
+    }
+    @DeleteMapping
+    public R<String>delete(@RequestParam List<Long>ids){
+        log.info("deleteIDs,{}",ids);
+        setMealService.removeWithDish(ids);
+        return R.success("删除成功");
+    }
+    
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable Integer status,@RequestParam List<Long>ids){
+        Setmeal setmeal = new Setmeal();
+        setmeal.setStatus(status);
+        LambdaQueryWrapper<Setmeal>queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId,ids);
+        setMealService.update(setmeal,queryWrapper);
+        return R.success("修改状态成功");
+    }
+    @GetMapping("/list")
+    public R<List<SetMealDto>> list(Setmeal setmeal){
+        LambdaQueryWrapper<Setmeal>queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+        queryWrapper.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
+        List<Setmeal>list = setMealService.list(queryWrapper);
+
+        List<SetMealDto>dtoList = list.stream().map(item->{
+            SetMealDto dto = new SetMealDto();
+            BeanUtils.copyProperties(item,dto);
+            LambdaQueryWrapper<SetmealDish>queryWrapper1 = new LambdaQueryWrapper<>();
+            queryWrapper1.eq(SetmealDish::getSetmealId,item.getId());
+            List<SetmealDish> list1 = setMealDishService.list(queryWrapper1);
+            dto.setSetmealDishes(list1);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return R.success(dtoList);
     }
 }

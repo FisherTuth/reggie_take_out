@@ -31,6 +31,8 @@ public class LoginCheckFilter implements Filter {
                 "/backend/**",
                 "/front/**",
                 "/common/**",
+                "/user/login",
+                "/user/sendMsg",
         };
 
         if(check(urls,requestUri)){
@@ -46,6 +48,15 @@ public class LoginCheckFilter implements Filter {
             filterChain.doFilter(request,response);
             return;
         }
+
+        if(request.getSession().getAttribute("user")!=null){
+            Long id = (Long) request.getSession().getAttribute("user");
+            log.info("用户已登录，id为{}",id);
+            BaseContext.setCurrentID(id);
+            filterChain.doFilter(request,response);
+            return;
+        }
+
         log.info("用户未登录");
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
         return;
